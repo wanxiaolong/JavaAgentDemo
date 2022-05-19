@@ -24,28 +24,76 @@
     </dependencies>
 
     <build>
-        <!-- 重命名jar包为agent-1.0-SNAPSHOT.jar -->
-        <finalName>agent-${project.version}</finalName>
         <plugins>
+            <!-- 打jar包用的插件：https://maven.apache.org/plugins/maven-jar-plugin/usage.html -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.2.2</version>
                 <configuration>
+                    <!-- 存档 -->
                     <archive>
+                        <!-- 配置清单 -->
                         <manifest>
-                            <addClasspath>true</addClasspath>
+                            <!-- 指定main函数入口 -->
+                            <mainClass>com.demo.agent.MyMainClass</mainClass>
                         </manifest>
+
+                        <!-- 定义写在MANIFEST.MF文件中的Key和Value -->
                         <manifestEntries>
-                            <!-- 定义写在MANIFEST.MF文件中的Key和Value -->
-                            <Premain-Class>com.demo.agent.PremainAgent</Premain-Class>
-                            <Agent-Class>com.demo.agent.PremainAgent</Agent-Class>
+                            <!-- 静态加载方式用到的代理类 -->
+                            <Premain-Class>com.demo.agent.MyJavaAgent</Premain-Class>
+                            <!-- 动态加载方式用到的代理类 -->
+                            <Agent-Class>com.demo.agent.MyJavaAgent</Agent-Class>
                             <Can-Redefine-Classes>true</Can-Redefine-Classes>
                             <Can-Retransform-Classes>true</Can-Retransform-Classes>
-                            <Build-By>Xiaolong Wan</Build-By>
+                            <!-- 键和值随意，比如下面这些 -->
+                            <Build-By>wanxiaolong</Build-By>
+                            <Build-Date>2022-05-19</Build-Date>
                         </manifestEntries>
                     </archive>
                 </configuration>
+            </plugin>
+
+            <!-- 组装成归档文件的插件：https://maven.apache.org/plugins/maven-assembly-plugin/usage.html -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <descriptorRefs>
+                        <!-- 这个descriptor是maven预制的，用于构建一个带有dependency的jar包 -->
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <!-- 存档 -->
+                    <archive>
+                        <!-- 配置清单 -->
+                        <manifest>
+                            <!-- 指定main函数入口 -->
+                            <mainClass>com.demo.agent.MyMainClass</mainClass>
+                        </manifest>
+
+                        <!-- 定义写在MANIFEST.MF文件中的Key和Value -->
+                        <manifestEntries>
+                            <!-- 静态加载方式用到的代理类 -->
+                            <Premain-Class>com.demo.agent.MyJavaAgent</Premain-Class>
+                            <!-- 动态加载方式用到的代理类 -->
+                            <Agent-Class>com.demo.agent.MyJavaAgent</Agent-Class>
+                            <Can-Redefine-Classes>true</Can-Redefine-Classes>
+                            <Can-Retransform-Classes>true</Can-Retransform-Classes>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <!-- 这个插件就2个goal，一个是single，一个是help -->
+                            <goal>single</goal>
+                        </goals>
+                        <!-- 绑定到maven的package阶段 -->
+                        <phase>package</phase>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
